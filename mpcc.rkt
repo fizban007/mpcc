@@ -153,11 +153,11 @@
     [(list 'fn name args -> ret body ...)
      (cond [(eq? body '()) (pretty-print-line (flatten (list ret name "(" (pretty-args args) ")")) 2)]
            [else (concat-str (pretty-print (flatten (list ret name "(" (pretty-args args) ")"))) " {\n"
-                       (unparse-expr-list body (+ indent 1)) "}\n\n")])]
+                       (unparse-statement-list body (+ indent 1)) "}\n\n")])]
     [(list 'fn name args body ...)
      (cond [(eq? body '()) (pretty-print-line (flatten (list "void" name "(" (pretty-args args) ")")) 2)]
            [else (concat-str (pretty-print (flatten (list "void" name "(" (pretty-args args) ")"))) " {\n"
-                       (unparse-expr-list body (+ indent 1)) "}\n\n")])]
+                       (unparse-statement-list body (+ indent 1)) "}\n\n")])]
     ;; [(list 'fn name args body)]
     ;; [(list 'fn name args -> ret body)]
 ))
@@ -180,32 +180,33 @@
     (concat-str "#define " (pretty-print (list (symbol->string symbol) " " (unparse-expr expr))) "\n")))
 
 
-(define (unparse-expr-list expr-list [indent 0])
+(define (unparse-statement-list expr-list [indent 0])
   (match expr-list
-    [(list (list a ..1) ..1)
-     (let ([kw (caar expr-list)]
-           [expr (first expr-list)])
+    [(list a ..1)
+     (let* ([expr (first expr-list)]
+            [kw (cond [(list? expr) (caar expr-list)])])
        (let ([result (cond
                       [(eq? kw 'br) "\n"]
                       [(eq? kw 'include) (unparse-include expr)]
                       [(eq? kw 'def) (unparse-define expr)]
                       [(eq? kw 'fn) (unparse-func expr)]
-                      [(eq? kw 'comment) (concat-str "/*" (unparse-expr-list (rest expr) indent) "*/\n")]
+                      [(eq? kw 'comment) (concat-str "/*" (unparse-statement-list (rest expr) indent) "*/\n")]
+                      [(string? kw) (indent-line (concat-str kw "\n") indent)]
                       [else (concat-str (indent-line (unparse-expr expr) indent) ";\n")])])
          ;; (concat-str (list (indent-line (unparse-expr (first expr-list)) indent) ";\n"
          (concat-str result
                            ;; (concat-str (list (indent-line (unparse-expr (first expr-list)) indent)
-                           (unparse-expr-list (rest expr-list) indent))))]
+                           (unparse-statement-list (rest expr-list) indent))))]
     ['() ""]
 ))
 
 
 (define (begin-c stmt [filename ""])
   (cond
-   [(eq? filename "") (printf (unparse-expr-list stmt))]
+   [(eq? filename "") (printf (unparse-statement-list stmt))]
    [(string? filename)
     (with-output-to-file filename #:exists 'replace
-      (lambda () (printf (unparse-expr-list stmt))))]))
+      (lambda () (printf (unparse-statement-list stmt))))]))
 
 (define (main stmts)
   `(fn main ([int argc] [char** argv]) -> int ,stmts))
