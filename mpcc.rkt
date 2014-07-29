@@ -191,6 +191,7 @@
                       [(eq? kw 'def) (unparse-define expr)]
                       [(eq? kw 'fn) (unparse-func expr)]
                       [(eq? kw 'comment) (concat-str "/*" (unparse-statement-list (rest expr) indent) "*/\n")]
+                      [(string? expr) (indent-line (concat-str "/* " expr "*/\n") indent)]
                       [(string? kw) (indent-line (concat-str kw "\n") indent)]
                       [else (concat-str (indent-line (unparse-expr expr) indent) ";\n")])])
          ;; (concat-str (list (indent-line (unparse-expr (first expr-list)) indent) ";\n"
