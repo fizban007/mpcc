@@ -26,5 +26,5 @@
         ;; ,(cout a b *a " " (+ b *c) endl)
         ,(apply-quote cout a b *a " " (+ b *c) ,endl)
         (ret 0)))
-   ) "test.cpp")
+   ) "hello-world.C")
 
