@@ -66,16 +66,18 @@
    [(symbol? terms) (symbol->string terms)]
    [(string? terms) terms]))
 
-(define (concat-str mylist)
-  (apply string-append mylist))
+;; (define (concat-str mylist)
+;;   (apply string-append mylist))
+(define concat-str
+  (lambda mylist
+    (apply string-append (flatten mylist))))
 
 (define (add-comma mylist)
   (concat-str (to-string (add-between mylist ", "))))
 
 (define (pretty-print-line statement [breaknum 1])
-  (concat-str (append 
-               (add-between (to-string statement)
-                            " ") `(";" ,(make-string breaknum #\newline)))))
+  (concat-str (add-between (to-string statement)
+                            " ") `(";" ,(make-string breaknum #\newline))))
 
 (define (pretty-print statement)
   (concat-str (add-between (to-string statement)
@@ -87,8 +89,7 @@
 (define (unparse-args args)
   (match args
     [(list (list t n) ... (list dt dn dv) ...)
-     (map concat-str (map
-                      (lambda (x) (cond
+     (map concat-str (map (lambda (x) (cond
                               [(eq? (length x) 2) (add-between (to-string x) " ")]
                               [(eq? (length x) 3) (add-between #:before-last " = "
                                                    (to-string x) " ")])) args))]))
@@ -103,7 +104,7 @@
 
 ;;  Define the language rules here
 ;; Single term
-(define-rule '(var a) '(pretty-print (list (cond [(string? a) (concat-str (list "\"" a "\""))]
+(define-rule '(var a) '(pretty-print (list (cond [(string? a) (concat-str "\"" a "\"")]
                                               [else a]))))
 ;; Function application
 (define-rule '(list a ..2) '(pretty-print (list (first expr) "(" (add-comma (map unparse-expr (rest expr))) ")")))
@@ -144,40 +145,39 @@
 ;;     [(list a ..2) (pretty-print (list (first expr) "(" (add-comma (map unparse-expr (rest expr))) ")"))]
 ;;     ;; [(list 'br) "\n"]
 ;;     ;; Single term
-;;     [(var a) (pretty-print (list (cond [(string? a) (concat-str (list "\"" a "\""))]
+;;     [(var a) (pretty-print (list (cond [(string? a) (concat-str "\"" a "\"")]
 ;;                                        [else a])))]))
 
 (define (unparse-func func [indent 0])
   (match func
     [(list 'fn name args -> ret body ...)
      (cond [(eq? body '()) (pretty-print-line (flatten (list ret name "(" (pretty-args args) ")")) 2)]
-           [else (concat-str (list (pretty-print (flatten (list ret name "(" (pretty-args args) ")"))) " {\n"
-                       (unparse-expr-list body (+ indent 1)) "}\n\n"))])]
+           [else (concat-str (pretty-print (flatten (list ret name "(" (pretty-args args) ")"))) " {\n"
+                       (unparse-expr-list body (+ indent 1)) "}\n\n")])]
     [(list 'fn name args body ...)
      (cond [(eq? body '()) (pretty-print-line (flatten (list "void" name "(" (pretty-args args) ")")) 2)]
-           [else (concat-str (list (pretty-print (flatten (list "void" name "(" (pretty-args args) ")"))) " {\n"
-                       (unparse-expr-list body (+ indent 1)) "}\n\n"))])]
+           [else (concat-str (pretty-print (flatten (list "void" name "(" (pretty-args args) ")"))) " {\n"
+                       (unparse-expr-list body (+ indent 1)) "}\n\n")])]
     ;; [(list 'fn name args body)]
     ;; [(list 'fn name args -> ret body)]
 ))
 
 
-
 (define (unparse-include stmt [indent 0])
   (let ([headers (rest stmt)])
     (define (to-header file)
-      (cond [(string? file) (concat-str (list "\"" file "\""))]
-            [(symbol? file) (concat-str (list "<" (symbol->string file) ">"))]))
+      (cond [(string? file) (concat-str "\"" file "\"")]
+            [(symbol? file) (concat-str "<" (symbol->string file) ">")]))
     (cond [(list? headers)
            (concat-str
-            (append (map (lambda (file) (concat-str (list "#include " (to-header file) "\n"))) headers)
+            (append (map (lambda (file) (concat-str "#include " (to-header file) "\n")) headers)
              '("\n")))]
-          [else (concat-str (list "#include " (to-header headers) "\n\n"))])))
+          [else (concat-str "#include " (to-header headers) "\n\n")])))
 
 (define (unparse-define stmt [indent 0])
   (let ([symbol (car (rest stmt))]
         [expr (cadr (rest stmt))])
-    (concat-str (list "#define " (pretty-print (list (symbol->string symbol) " " (unparse-expr expr))) "\n"))))
+    (concat-str "#define " (pretty-print (list (symbol->string symbol) " " (unparse-expr expr))) "\n")))
 
 
 (define (unparse-expr-list expr-list [indent 0])
@@ -190,12 +190,12 @@
                       [(eq? kw 'include) (unparse-include expr)]
                       [(eq? kw 'def) (unparse-define expr)]
                       [(eq? kw 'fn) (unparse-func expr)]
-                      [(eq? kw 'comment) (concat-str (list "/*" (unparse-expr-list (rest expr) indent) "*/\n"))]
-                      [else (concat-str (list (indent-line (unparse-expr expr) indent) ";\n"))])])
+                      [(eq? kw 'comment) (concat-str "/*" (unparse-expr-list (rest expr) indent) "*/\n")]
+                      [else (concat-str (indent-line (unparse-expr expr) indent) ";\n")])])
          ;; (concat-str (list (indent-line (unparse-expr (first expr-list)) indent) ";\n"
-         (concat-str (list result
+         (concat-str result
                            ;; (concat-str (list (indent-line (unparse-expr (first expr-list)) indent)
-                           (unparse-expr-list (rest expr-list) indent)))))]
+                           (unparse-expr-list (rest expr-list) indent))))]
     ['() ""]
 ))
 
