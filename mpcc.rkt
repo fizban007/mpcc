@@ -186,9 +186,11 @@
      (let ([num-clauses (length conditions)]
            [num 0])
        (define (make-if i)
-         (list (cond [(equal? i 0) (indent-line "if ( " indent)]
-                     [else "else if ( "])
-               (unparse-expr (list-ref conditions i)) " ) {\n"
+         (list (cond [(and (equal? i (- num-clauses 1)) (eq? (list-ref conditions i) 'else))
+                      "else {\n"]
+                     [else (concat-str (cond [(equal? i 0) (indent-line "if ( " indent)]
+                                             [else "else if ( "])
+                                       (unparse-expr (list-ref conditions i)) " ) {\n")])
                (unparse-statement-list (list-ref exprs i) (+ indent 1))
                (indent-line (cond [(equal? i (- num-clauses 1)) "}\n"]
                                              [else "} "]) indent)))

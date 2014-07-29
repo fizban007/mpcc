@@ -63,7 +63,9 @@ and two-line comment"
         (if [(> b 2)
              ,(apply-quote cout "b is larger than 2!" ,endl)]
             [(< b -2)
-             ,(apply-quote cout "b is smaller than -2!" ,endl)])
+             ,(apply-quote cout "b is smaller than -2!" ,endl)]
+            [else
+             ,(apply-quote cout "otherwise!" ,endl)])
         (ret 0)))
  "hello-world.C")
 
