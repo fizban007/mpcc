@@ -10,11 +10,10 @@
   (let ([xs (syntax->datum stx)])
     (datum->syntax stx (cons-quote xs))))
 
-;; (define-syntax aq apply-quote)
-
 (define-syntax (make-quote stx)
-                   (let ([xs (syntax->datum stx)])
-                     (datum->syntax stx `(quote ,(cdr xs)))))
+  (let ([xs (syntax->datum stx)])
+	(datum->syntax stx `(quote ,(cdr xs)))))
+
 ;; (define-for-syntax op-assign "=")
 (define op-assign "=")
 
@@ -48,7 +47,6 @@
 (define (compound-assign-op? op)
   (check-op op compound-assign-op))
 ;; End of operators definition
-
 
 (define tab-size 4)
 
@@ -134,8 +132,6 @@
                        (unparse-expr-list body (+ indent 1)) "}\n\n"))]
 ))
 
-
-
 (define (unparse-include stmt [indent 0])
   (let ([headers (rest stmt)])
     (define (to-header file)
@@ -151,7 +147,6 @@
   (let ([symbol (car (rest stmt))]
         [expr (cadr (rest stmt))])
     (concat-str (list "#define " (pretty-print (list (symbol->string symbol) " " (unparse-expr expr))) "\n"))))
-
 
 (define (unparse-expr-list expr-list [indent 0])
   (match expr-list
@@ -169,9 +164,7 @@
          (concat-str (list result
                            ;; (concat-str (list (indent-line (unparse-expr (first expr-list)) indent)
                            (unparse-expr-list (rest expr-list) indent)))))]
-    ['() ""]
-))
-
+    ['() ""]))
 
 (define (begin-c stmt [filename ""])
   (cond
