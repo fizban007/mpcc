@@ -164,14 +164,16 @@
 
 (define (unparse-func func [indent 0])
   (match func
-    [(list 'fn name args -> ret) (pretty-print-line (flatten (list ret name "(" (pretty-args args) ")")) 2)]
-    [(list 'fn name args) (pretty-print-line (flatten (list "void" name "(" (pretty-args args) ")")) 2)]
-    [(list 'fn name args body) 
-     (concat-str (list (pretty-print (flatten (list "void" name "(" (pretty-args args) ")"))) " {\n"
-                       (unparse-expr-list body (+ indent 1)) "}\n\n"))]
-    [(list 'fn name args -> ret body) 
-     (concat-str (list (pretty-print (flatten (list ret name "(" (pretty-args args) ")"))) " {\n"
-                       (unparse-expr-list body (+ indent 1)) "}\n\n"))]
+    [(list 'fn name args -> ret body ...)
+     (cond [(eq? body '()) (pretty-print-line (flatten (list ret name "(" (pretty-args args) ")")) 2)]
+           [else (concat-str (list (pretty-print (flatten (list ret name "(" (pretty-args args) ")"))) " {\n"
+                       (unparse-expr-list body (+ indent 1)) "}\n\n"))])]
+    [(list 'fn name args body ...)
+     (cond [(eq? body '()) (pretty-print-line (flatten (list "void" name "(" (pretty-args args) ")")) 2)]
+           [else (concat-str (list (pretty-print (flatten (list "void" name "(" (pretty-args args) ")"))) " {\n"
+                       (unparse-expr-list body (+ indent 1)) "}\n\n"))])]
+    ;; [(list 'fn name args body)]
+    ;; [(list 'fn name args -> ret body)]
 ))
 
 
