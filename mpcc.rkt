@@ -232,9 +232,9 @@
 ;; (define-syntax (cout stx)
 ;;   (datum->syntax stx
 ;;                  `(list (pretty-print (list "std::cout <<" (add-between (map paren-unparse-expr (quote ,(cdr (syntax->datum stx)))) "<<"))))))
-(define cout
-  (lambda args
-    (list (pretty-print (list "std::cout <<" (add-between (map paren-unparse-expr args) "<<"))))))
+;; (define cout
+;;   (lambda args
+;;     (list (pretty-print (list "std::cout <<" (add-between (map paren-unparse-expr args) "<<"))))))
 
     ;; [(list 'cout val ...) (pretty-print (list "std::cout <<" (add-between (map paren-unparse-expr val) "<<")))]
     ;; [(list 'cout-line val ...) (pretty-print (list "std::cout <<" (add-between (map paren-unparse-expr val) "<<") "<< std::endl"))]
