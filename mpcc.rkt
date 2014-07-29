@@ -172,6 +172,31 @@
        
        (concat-str (apply append (map make-if (build-list num-clauses values)))))]))
 
+(define (unparse-while stmt [indent 0])
+  (match stmt
+    [(list 'while condition expr ...)
+     (concat-str (indent-line "while (" indent)
+                 (unparse-expr condition) ") {\n"
+                 (unparse-statement-list expr (+ indent 1))
+                 ("}\n"))]))
+
+(define (unparse-for stmt [indent 0])
+  (define (make-for start end step body [it 'i] [it-type 'int])
+    (concat-str (indent-line "for (" indent)
+                (concat-str (unparse-expr `(decl ,it-type ,it ,start)) "; "
+                            (unparse-expr `(< ,it ,end)) "; "
+                            (unparse-expr `(+= ,it ,step)) ") {\n"
+                            (unparse-statement-list body (+ indent 1))
+                            (indent-line "}\n" indent))))
+  (match stmt
+    [(list 'for (list start end step) body ...)
+     (make-for start end step body)]
+    [(list 'for (list it start end step) body ...)
+     (make-for start end step body it)]
+    [(list 'for (list type it start end step) body ...)
+     (make-for start end step body it type)]
+    ))
+
 
 (define (unparse-statement-list expr-list [indent 0])
   (match expr-list
@@ -185,6 +210,7 @@
                       [(eq? kw 'fn) (unparse-func expr)]
                       [(eq? kw 'comment) (concat-str "/*" (unparse-statement-list (rest expr) indent) "*/\n")]
                       [(eq? kw 'if) (unparse-if expr indent)]
+                      [(eq? kw 'for) (unparse-for expr indent)]
                       [(string? expr) (indent-line (concat-str "/* " expr "*/\n") indent)]
                       [(string? kw) (indent-line (concat-str kw "\n") indent)]
                       [else (concat-str (indent-line (unparse-expr expr) indent) ";\n")])])

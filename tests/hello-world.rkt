@@ -31,7 +31,7 @@
             [else '|std::endl|])))
 
 (begin-c
- `((include stdio.h iostream math.h)
+ `((include stdio.h iostream math.h vector)
    "Use namespace std here"
    ,(apply-quote using std)
    
@@ -64,6 +64,16 @@ and two-line comment"
              ,(apply-quote cout "b is smaller than -2!" ,endl)]
             [else
              ,(apply-quote cout "otherwise!" ,endl)])
+        "Testing for statement"
+        (for (int i 0 10 1)
+          ,(apply-quote cout i " "))
+        ,(apply-quote cout ,endl)
+        "Loop over iterator"
+        (decl vector<int> vec)
+        (vec.resize 10 3)
+        (for (vector<int>::iterator it |vec.begin()| |vec.end()| 1)
+          ,(apply-quote cout *it " "))
+        ,(apply-quote cout ,endl)
         (ret 0)))
  "hello-world.C")
 
