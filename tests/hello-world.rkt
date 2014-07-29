@@ -24,7 +24,6 @@
                              (begin
                                (add-namespace name)
                                (concat-str (pretty-print (list "using namespace" name)) ";\n"))) namespaces)))))
-;;     (list (pretty-print (list "using namespace")))))
 
 (define-syntax endl
   (lambda stx
@@ -56,8 +55,7 @@ and two-line comment"
         (br)
         (test b 2)
         (printf "%d\\n" b)
-        ;; (cout *a " " b " " (+ b *c) ,endl)
-        ;; ,(cout a b *a " " (+ b *c) endl)
+        
         ,(apply-quote cout a b *a " " (+ b *c) ,endl)
         "Testing if statement"
         (if [(> b 2)

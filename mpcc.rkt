@@ -126,27 +126,6 @@
 (define (unparse-expr expr)
   (match-rules expr))
 
-;; (define (unparse-expr expr)
-;;   (match expr
-;;     [(list 'new type) (pretty-print (list "new" type))]
-;;     [(list 'new type expr ...) (pretty-print (list "new" (unparse-expr (list type expr))))]
-;;     [(list 'new-array type num) (pretty-print (list "new" type "[" num "]"))]
-;;     [(list 'del name) (pretty-print (list "delete" name))]
-;;     [(list 'del-array name) (pretty-print (list "delete[]" name))]
-;;     [(list 'decl type name) (pretty-print (list type name))]
-;;     [(list 'decl type name val) (pretty-print (list type name op-assign (unparse-expr val)))]
-;;     [(list 'assign name val) (pretty-print (list name op-assign (unparse-expr val)))]
-;;     [(list (? compound-assign-op? op) name val) (pretty-print (list name (to-string op) (unparse-expr val)))]
-;;     [(list (? binary-op? op) op1 op2) (pretty-print (list (paren-unparse-expr op1) (to-string op) (paren-unparse-expr op2)))]
-;;     [(list (? unary-op? op) op1) (pretty-print (list (to-string op) (paren-unparse-expr op1)))]
-;;     [(list (? relation-op? op) op1 op2) (pretty-print (list (paren-unparse-expr op1) (to-string op) (paren-unparse-expr op2)))]
-;;     [(list 'ret val) (pretty-print (list "return" (paren-unparse-expr val)))]
-;;     ;; Function application
-;;     [(list a ..2) (pretty-print (list (first expr) "(" (add-comma (map unparse-expr (rest expr))) ")"))]
-;;     ;; [(list 'br) "\n"]
-;;     ;; Single term
-;;     [(var a) (pretty-print (list (cond [(string? a) (concat-str "\"" a "\"")]
-;;                                        [else a])))]))
 
 (define (unparse-func func [indent 0])
   (match func
@@ -157,10 +136,7 @@
     [(list 'fn name args body ...)
      (cond [(eq? body '()) (pretty-print-line (flatten (list "void" name "(" (pretty-args args) ")")) 2)]
            [else (concat-str (pretty-print (flatten (list "void" name "(" (pretty-args args) ")"))) " {\n"
-                       (unparse-statement-list body (+ indent 1)) "}\n\n")])]
-    ;; [(list 'fn name args body)]
-    ;; [(list 'fn name args -> ret body)]
-))
+                       (unparse-statement-list body (+ indent 1)) "}\n\n")])]))
 
 
 (define (unparse-include stmt [indent 0])
@@ -180,7 +156,6 @@
     (concat-str "#define " (pretty-print (list (symbol->string symbol) " " (unparse-expr expr))) "\n")))
 
 (define (unparse-if stmt [indent 0])
-;; (define-rule '(list 'if (list condition expr ...) ...) '(concat-str (list "if ( " (unparse-expr condition) " ) {\n" (unparse-statement-list expr (+ indent 1)) (indent-line "}\n" indent))))
   (match stmt
     [(list 'if (list conditions exprs ...) ..1)
      (let ([num-clauses (length conditions)]
@@ -231,15 +206,6 @@
 (define (main stmts)
   `(fn main ([int argc] [char** argv]) -> int ,stmts))
 
-;; (define-syntax (cout stx)
-;;   (datum->syntax stx
-;;                  `(list (pretty-print (list "std::cout <<" (add-between (map paren-unparse-expr (quote ,(cdr (syntax->datum stx)))) "<<"))))))
-;; (define cout
-;;   (lambda args
-;;     (list (pretty-print (list "std::cout <<" (add-between (map paren-unparse-expr args) "<<"))))))
-
-    ;; [(list 'cout val ...) (pretty-print (list "std::cout <<" (add-between (map paren-unparse-expr val) "<<")))]
-    ;; [(list 'cout-line val ...) (pretty-print (list "std::cout <<" (add-between (map paren-unparse-expr val) "<<") "<< std::endl"))]
 
 (provide (all-defined-out))
 
