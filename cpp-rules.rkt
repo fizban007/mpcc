@@ -1,16 +1,16 @@
 #lang racket
 
-(provide add-rule! match-rules)
+(provide define-rule match-rules)
 
 (define-values-for-syntax (append-rule get-rules)
   (let ([expr-rules '()])
     (values
      (lambda (rule)
-       (set! expr-rules (append expr-rules (list rule))))
+       (set! expr-rules (append (list rule) expr-rules)))
      (lambda ()
        expr-rules))))
 
-(define-syntax (add-rule! stx)
+(define-syntax (define-rule stx)
   (syntax-case stx ()
     [(_ pattern rule) #'(begin-for-syntax (append-rule (list pattern rule)))]))
 
