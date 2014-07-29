@@ -2,16 +2,34 @@
 
 (require "../mpcc.rkt")
 
+(define-values (add-namespace in-namespace?)
+  (let ([namespaces '()])
+    (values
+     (lambda (name)
+       (set! namespaces (append namespaces (list name))))
+     (lambda (name)
+       (cond [(eq? (member name namespaces) #f) #f]
+             [else #t])))))
+
 (define cout
   (lambda args
-    (list (pretty-print (list "std::cout <<" (add-between (map paren-unparse-expr args) "<<") ";")))))
+    (list (pretty-print (list
+                         (cond [(in-namespace? 'std) "cout <<"]
+                               [else "std::cout <<"])
+                         (add-between (map paren-unparse-expr args) "<<") ";")))))
 
 (define using
   (lambda namespaces
-    (list (concat-str (map (lambda (name) (concat-str (pretty-print (list "using namespace" name)) ";\n")) namespaces)))))
+    (list (concat-str (map (lambda (name)
+                             (begin
+                               (add-namespace name)
+                               (concat-str (pretty-print (list "using namespace" name)) ";\n"))) namespaces)))))
 ;;     (list (pretty-print (list "using namespace")))))
 
-(define endl '|std::endl|)
+(define-syntax endl
+  (lambda stx
+    #'(cond [(in-namespace? 'std) 'endl]
+            [else '|std::endl|])))
 
 (begin-c
  `((include stdio.h iostream math.h)
