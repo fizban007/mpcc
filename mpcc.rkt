@@ -118,23 +118,23 @@
   (cond [(list? expr) (list "(" (unparse-expr expr) ")")]
         [else (unparse-expr expr)]))
 
-(add-rule '(list 'new type) '(pretty-print (list "new" type)))
-(add-rule '(list 'new type expr ...) '(pretty-print (list "new" (unparse-expr (append (list type) expr)))))
-(add-rule '(list 'new-array type num) '(pretty-print (list "new" type "[" num "]")))
-(add-rule '(list 'del name) '(pretty-print (list "delete" name)))
-(add-rule '(list 'del-array name) '(pretty-print (list "delete[]" name)))
-(add-rule '(list 'decl type name) '(pretty-print (list type name)))
-(add-rule '(list 'decl type name val) '(pretty-print (list type name op-assign (unparse-expr val))))
-(add-rule '(list 'assign name val) '(pretty-print (list name op-assign (unparse-expr val))))
-(add-rule '(list (? compound-assign-op? op) name val) '(pretty-print (list name (to-string op) (unparse-expr val))))
-(add-rule '(list (? binary-op? op) op1 op2) '(pretty-print (list (paren-unparse-expr op1) (to-string op) (paren-unparse-expr op2))))
-(add-rule '(list (? unary-op? op) op1) '(pretty-print (list (to-string op) (paren-unparse-expr op1))))
-(add-rule '(list (? relation-op? op) op1 op2) '(pretty-print (list (paren-unparse-expr op1) (to-string op) (paren-unparse-expr op2))))
-(add-rule '(list 'ret val) '(pretty-print (list "return" (paren-unparse-expr val))))
+(add-rule! '(list 'new type) '(pretty-print (list "new" type)))
+(add-rule! '(list 'new type expr ...) '(pretty-print (list "new" (unparse-expr (append (list type) expr)))))
+(add-rule! '(list 'new-array type num) '(pretty-print (list "new" type "[" num "]")))
+(add-rule! '(list 'del name) '(pretty-print (list "delete" name)))
+(add-rule! '(list 'del-array name) '(pretty-print (list "delete[]" name)))
+(add-rule! '(list 'decl type name) '(pretty-print (list type name)))
+(add-rule! '(list 'decl type name val) '(pretty-print (list type name op-assign (unparse-expr val))))
+(add-rule! '(list 'assign name val) '(pretty-print (list name op-assign (unparse-expr val))))
+(add-rule! '(list (? compound-assign-op? op) name val) '(pretty-print (list name (to-string op) (unparse-expr val))))
+(add-rule! '(list (? binary-op? op) op1 op2) '(pretty-print (list (paren-unparse-expr op1) (to-string op) (paren-unparse-expr op2))))
+(add-rule! '(list (? unary-op? op) op1) '(pretty-print (list (to-string op) (paren-unparse-expr op1))))
+(add-rule! '(list (? relation-op? op) op1 op2) '(pretty-print (list (paren-unparse-expr op1) (to-string op) (paren-unparse-expr op2))))
+(add-rule! '(list 'ret val) '(pretty-print (list "return" (paren-unparse-expr val))))
 ;; Function application
-(add-rule '(list a ..2) '(pretty-print (list (first expr) "(" (add-comma (map unparse-expr (rest expr))) ")")))
+(add-rule! '(list a ..2) '(pretty-print (list (first expr) "(" (add-comma (map unparse-expr (rest expr))) ")")))
 ;; Single term
-(add-rule '(var a) '(pretty-print (list (cond [(string? a) (concat-str (list "\"" a "\""))]
+(add-rule! '(var a) '(pretty-print (list (cond [(string? a) (concat-str (list "\"" a "\""))]
                                               [else a]))))
 
 (define (unparse-expr expr)
