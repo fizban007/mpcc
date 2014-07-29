@@ -179,6 +179,22 @@
         [expr (cadr (rest stmt))])
     (concat-str "#define " (pretty-print (list (symbol->string symbol) " " (unparse-expr expr))) "\n")))
 
+(define (unparse-if stmt [indent 0])
+;; (define-rule '(list 'if (list condition expr ...) ...) '(concat-str (list "if ( " (unparse-expr condition) " ) {\n" (unparse-statement-list expr (+ indent 1)) (indent-line "}\n" indent))))
+  (match stmt
+    [(list 'if (list conditions exprs ...) ..1)
+     (let ([num-clauses (length conditions)]
+           [num 0])
+       (define (make-if i)
+         (list (cond [(equal? i 0) (indent-line "if ( " indent)]
+                     [else "else if ( "])
+               (unparse-expr (list-ref conditions i)) " ) {\n"
+               (unparse-statement-list (list-ref exprs i) (+ indent 1))
+               (indent-line (cond [(equal? i (- num-clauses 1)) "}\n"]
+                                             [else "} "]) indent)))
+       
+       (concat-str (apply append (map make-if (build-list num-clauses values)))))]))
+
 
 (define (unparse-statement-list expr-list [indent 0])
   (match expr-list
@@ -191,6 +207,7 @@
                       [(eq? kw 'def) (unparse-define expr)]
                       [(eq? kw 'fn) (unparse-func expr)]
                       [(eq? kw 'comment) (concat-str "/*" (unparse-statement-list (rest expr) indent) "*/\n")]
+                      [(eq? kw 'if) (unparse-if expr indent)]
                       [(string? expr) (indent-line (concat-str "/* " expr "*/\n") indent)]
                       [(string? kw) (indent-line (concat-str kw "\n") indent)]
                       [else (concat-str (indent-line (unparse-expr expr) indent) ";\n")])])

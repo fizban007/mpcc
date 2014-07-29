@@ -41,6 +41,11 @@ and two-line comment"
         ;; (cout *a " " b " " (+ b *c) ,endl)
         ;; ,(cout a b *a " " (+ b *c) endl)
         ,(apply-quote cout a b *a " " (+ b *c) ,endl)
+        "Testing if statement"
+        (if [(> b 2)
+             ,(apply-quote cout "b is larger than 2!" ,endl)]
+            [(< b -2)
+             ,(apply-quote cout "b is smaller than -2!" ,endl)])
         (ret 0)))
  "hello-world.C")
 
