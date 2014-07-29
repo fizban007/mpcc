@@ -1,6 +1,7 @@
 #lang racket
 
 (require (for-syntax syntax/parse))
+(require "cpp-rules.rkt")
 
 (define-syntax (apply-quote stx)
   (define (cons-quote args)
@@ -9,24 +10,6 @@
       (cons f (map (lambda (a) (list 'quasiquote a)) xs))))
   (let ([xs (syntax->datum stx)])
     (datum->syntax stx (cons-quote xs))))
-
-(define-for-syntax expr-rules '())
-
-(define-syntax (add-rule stx)
-  (syntax-case stx ()
-    [(_ pattern rule) #'(begin-for-syntax (set! expr-rules (append expr-rules (list (list pattern rule)))))]))
-
-;; (define-for-syntax expr-rules '(((list 'new type) (pretty-print (list "new" type)))))
-
-(define-syntax (match-rules stx)
-  (let ([stmts (cadr (syntax->datum stx))])
-    (define (append-match rules)
-      (cond [(eq? rules '()) '()]
-            [else
-             (append (list `[,(caar rules) ,(cadar rules)]) (append-match (cdr rules)))]))
-    ;; (print (append (list 'match) (append-match expr-rules)))
-    (datum->syntax stx (append (list 'match stmts)
-                               (append-match expr-rules)))))
 
 ;; (define-syntax aq apply-quote)
 
