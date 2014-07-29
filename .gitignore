@@ -1,1 +1,3 @@
-tests/test*
+tests/a.out
+tests/*.C
+tests/*.h
